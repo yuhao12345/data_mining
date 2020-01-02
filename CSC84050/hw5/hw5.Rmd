@@ -1,0 +1,102 @@
+---
+title: "hw5"
+output: html_document
+---
+
+```{r}
+library(ggdendro)
+df <- read.csv(file="mnist_train.csv",nrows=1000)
+```
+
+```{r}
+show_digit <- function(arr784, col=gray(12:1/12), ...) {
+  image(matrix(as.matrix(arr784), nrow=28)[,28:1], col=col, ...)
+}
+```
+
+```{r}
+df1<-df[,-1]
+kct = kmeans(df1,10)
+```
+
+```{r}
+par(mfrow=c(3,4))
+for (i in 1:10) {
+  show_digit(kct$centers[i,])
+}
+```
+
+Most digits are clear.
+
+```{r}
+distances<- dist(df1)
+h.clusters <- hclust(distances)
+```
+
+```{r}
+par(mfrow=c(1,1))
+plot(h.clusters,hang=-1)
+rect.hclust(h.clusters, k=12, border="red")
+```
+
+Don't see large gap. 12 clusters may be appropriate.
+
+# HW1
+```{r}
+library(ggplot2)
+
+df <- read.csv("D:\\data mining\\w1task.csv", header = TRUE)
+ggplot(data=df,aes(x,y))+
+  geom_point()+
+  facet_wrap(~dataset,nrow=4)
+```
+
+# HW4
+```{r message=FALSE}
+library(imager)
+library(ClusterR)
+```
+
+```{r}
+im <- load.image('tower-of-babel.jpg!Large.jpg')
+plot(im) 
+im<-grayscale(im)
+```
+
+
+## 200 clusters
+
+```{r}
+im3 = apply(im, 1, as.vector)
+kct = KMeans_rcpp(im3, clusters = 200, num_init = 5,initializer = 'kmeans++', verbose = F)
+```
+
+```{r}
+getcent_init = kct$centroids
+# kct$centroids
+getclust_init = kct$clusters
+# kct$clusters
+new_im_init = getcent_init[getclust_init, ]  # each observation is associated with the nearby centroid
+
+
+image(new_im_init,col = grey(seq(0, 1, length = 256)))
+```
+
+
+## 6 clusters
+
+```{r}
+im3 = apply(im, 1, as.vector)
+kct2 = KMeans_rcpp(im3, clusters = 6, num_init = 5,initializer = 'kmeans++', verbose = F)
+```
+
+```{r}
+getcent_init = kct2$centroids
+
+getclust_init = kct2$clusters
+
+new_im_init = getcent_init[getclust_init, ]  
+
+image(new_im_init,col = grey(seq(0, 1, length = 256)))
+```
+

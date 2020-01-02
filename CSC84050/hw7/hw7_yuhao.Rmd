@@ -1,0 +1,58 @@
+---
+title: "HW7"
+author: "yuhao kang"
+date: "March 27, 2018"
+output: html_document
+---
+
+# task 4
+```{r message=FALSE,warning=FALSE}
+library(kohonen)
+df <- read.csv(file="mnist_train.csv",nrows=1000)
+df1<-as.matrix(df[,-1])         # select first 1000 rows and convert to matrix
+```
+
+```{r}
+som_grid <- somgrid(xdim = 8, ydim=8, topo="rectangular") # define rectangular type grid
+som_model <- som(df1, grid=som_grid, rlen=150, alpha=c(0.05,0.01), 
+                 keep.data = TRUE)
+```
+
+```{r}
+plot(som_model, type = "mapping", pchs = 20, main = "Mapping Type SOM",labels=df$X5)  # map to each cluster and add label
+```
+
+```{r}
+plot(som_model, type="changes")
+```
+
+Step-like decrease rather than exponentially decay.
+
+
+```{r}
+plot(som_model, type="count")  # number in each cluster
+```
+
+# task 5
+
+```{r}
+df.pca<-prcomp(df1,scale. = FALSE,center = FALSE)
+explained.variance = df.pca$sdev^2
+explained.variance.ratio = explained.variance/sum(explained.variance)
+```
+
+```{r}
+df.scores = df.pca$x
+digit<-factor(df$X5)
+plot(df.scores[,1:2], col = digit) # different digit has different color
+```
+
+Do not really split the data.
+
+```{r}
+plot(df.pca, type = "l")
+```
+
+2 dimensional projection is enough.
+
+

@@ -1,0 +1,88 @@
+---
+title: "HW 9+8"
+author: "yuhao kang"
+date: "April 16, 2018"
+output: html_document
+---
+
+```{r message=FALSE, warning=FALSE}
+library(ggplot2)
+library(lle)
+library(vegan)
+library(fastICA)
+
+```
+
+
+# LLE
+
+
+```{r message=FALSE, warning=FALSE, notice=FALSE}
+df1 <- read.csv(file="mnist_train.csv",nrows=5000)
+df<-df1[,-1]
+df_lle<-lle(df,m=2,  k=10, reg=2, ss=FALSE, id=TRUE, v=0.9 )
+plot(df_lle$Y, main="K=10 data", xlab=expression(y[1]), ylab=expression(y[2]))
+```
+
+
+# ISOMAP
+
+```{r message=FALSE, warning=FALSE, notice=FALSE}
+dis_df<-vegdist(df)
+pl <- plot(isomap(dis_df, k=4), main="isomap k=4")
+# tr <- spantree(dis_df)
+# pl <- ordiplot(cmdscale(dis_df), main="cmdscale")
+# lines(tr, pl, col="red")
+```
+
+The projection in isomap is a bulk, while in LLE is more like a line. In isomap, the connection between different clusters is weaker.
+
+# HW8
+
+# ICA 
+
+```{r  message=FALSE, warning=FALSE, notice=FALSE}
+df_ica <- fastICA(df, 10, alg.typ = "parallel", fun = "logcosh", alpha = 1,
+             method = "R", row.norm = FALSE, maxit = 200,
+             tol = 0.0001, verbose = TRUE)
+
+```
+
+```{r}
+show_digit <- function(arr784, col=gray(12:1/12), ...) {
+  image(matrix(as.matrix(arr784), nrow=28)[,28:1], col=col, ...)
+}
+```
+
+```{r}
+par(mfrow=c(3,4))
+for (i in 1:10) {
+  show_digit(df_ica$A[i,])     # SHOW 10 COMPONENTS IN ICA
+}
+```
+
+# KMEANS
+```{r}
+kct = kmeans(df,10)
+par(mfrow=c(3,4))
+for (i in 1:10) {
+  show_digit(kct$centers[i,])   #SHOW 10 K MEANS
+}
+```
+
+KMEANS do a better job in finding the representative of cluster.
+
+# MDS
+
+```{r}
+df_mds<-metaMDS(dis_df, distance = "bray", k = 2, try = 20, trymax = 20, 
+    autotransform =FALSE,
+    trace = 1, plot =FALSE)
+
+MDS_xy <- data.frame(df_mds$points)
+MDS_xy$digit <- df1$X5
+ggplot(MDS_xy, aes(MDS1, MDS2, color = digit)) + geom_point()   # label different digit with different color
+```
+
+
+MDS cannot seperate different digit. There are strong overlapping for distinct digits.
